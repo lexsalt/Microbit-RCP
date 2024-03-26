@@ -103,11 +103,14 @@ export default function Game() {
         // console.log(arr)
         // console.log(data)
       } else if (data.indexOf("s") === 0) {
-        setOnShake(true);
+        if (!onShake) {
+
+          setOnShake(true); 
+        }
         setTimeout(() => {
           // console.log("Delayed for 0.5 second.");
           setOnShake(false);
-        }, "200");
+        }, "300");
       }
     }
   }
@@ -201,15 +204,16 @@ export default function Game() {
     useEffect(() => {
       if (!onShake) {
         if (positionY<600) {
-          setPositionY(positionY+1)
+          setPositionY(positionY+4)
         } else {
           setPositionY(600)
         }
       } else if (onShake) {
         for (let i = 0; i<3;i++) {
-          setPositionY(positionY-1)
+          setPositionY(positionY-2)
           setPositionX(positionX)
         }
+        // setOnShake(false)
       }
 
       // setTimeout(() => {
