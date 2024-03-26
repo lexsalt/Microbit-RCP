@@ -209,9 +209,11 @@ export default function Game() {
           setPositionY(600)
         }
       } else if (onShake) {
-        for (let i = 0; i<3;i++) {
-          setPositionY(positionY-2)
-          setPositionX(positionX)
+        if (positionY>450) {
+          for (let i = 0; i<3;i++) {
+            setPositionY(positionY-2)
+            setPositionX(positionX)
+          }
         }
         // setOnShake(false)
       }
