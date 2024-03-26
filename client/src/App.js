@@ -103,15 +103,17 @@ export default function Game() {
         // console.log(arr)
         // console.log(data)
       } else if (data.indexOf("s") === 0) {
-        if (!onShake) {
-
-          setOnShake(true); 
-        }
-        setTimeout(() => {
-          // console.log("Delayed for 0.5 second.");
-          setOnShake(false);
-        }, "300");
+        shakeIt()
       }
+    }
+  }
+  const shakeIt = () => {
+    if (!onShake) {
+      setOnShake(true)
+      setTimeout(() => {
+        // console.log("Delayed for 0.5 second.");
+        setOnShake(false);
+      }, "300");
     }
   }
   function pitchAdd(num, arr) {
@@ -187,7 +189,7 @@ export default function Game() {
     clear: clearState
   })
 
-  // draw canvas and move character. better to separate in different canvas
+  // draw canvas and move object.
   useEffect(() => {
     // screening.draw()
     testing.draw();
@@ -215,15 +217,7 @@ export default function Game() {
             setPositionX(positionX)
           }
         }
-        // setOnShake(false)
-      }
-
-      // setTimeout(() => {
-      //   // console.log("Delayed for 0.5 second.");
-      //   // setOnShake(false);
-      //   setPositionY(positionY-1)
-      // }, "10");
-      
+      }      
       }, [frames]);
 
   return (
