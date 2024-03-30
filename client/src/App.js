@@ -18,7 +18,10 @@ export default function Game() {
   // const [canvasHeight] = useState(576);
   // const [onOff, setOnOff] = useState(true)
   const [canvasHeight] = useState(720);
+  
   const [seconds, setSeconds] = useState(0);
+  const [time, setTime] = useState({});  
+
   const [frames, setFrames] = useState(0);
   const [animationFrame, setAnimationFrame] = useState(1);
   const [positionX, setPositionX] = useState(-20)
@@ -57,6 +60,54 @@ export default function Game() {
         setSeconds((seconds) => seconds + 1);
       }, 1000);
     }, [seconds]);
+
+    // set hour and time with seconds to time function
+    useEffect(() => {
+      let clock = secondsToTime(seconds);
+      //console.log("m: "+clock.m+" s: "+clock.s)
+      function addZero(sec) {
+        if (
+          (sec === 0) |
+          (sec === 1) |
+          (sec === 2) |
+          (sec === 3) |
+          (sec === 4) |
+          (sec === 5) |
+          (sec === 6) |
+          (sec === 7) |
+          (sec === 8) |
+          (sec === 9)
+        ) {
+          return 0;
+        } else {
+          return "";
+        }
+      }
+      let sec0 = addZero(clock.s);
+      let min0 = addZero(clock.m);
+      let mm = clock.m;
+      let ss = clock.s;
+      setTime({ min0, mm, sec0, ss });
+    }, [seconds]);
+    
+    // seconds to time function
+
+    function secondsToTime(secs) {
+      let divisor_for_minutes = secs % (60 * 60);
+      let minutes = Math.floor(divisor_for_minutes / 60);
+      if (secs === 3600) {
+        minutes = 60;
+      }
+  
+      let divisor_for_seconds = divisor_for_minutes % 60;
+      let seconds = Math.ceil(divisor_for_seconds);
+  
+      let obj = {
+        m: minutes,
+        s: seconds,
+      };
+      return obj;
+    }
     
     // set frames counter to set all the states
     useEffect(() => {
@@ -225,6 +276,13 @@ export default function Game() {
       <div>
       </div>
       <div className="mother">
+        <div className="parent">
+          <div className="title">Time: </div>
+
+          <div className="item">
+            <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
+          </div>
+        </div>
         <div className="parent">
           <div className="title">Position: </div>
           <div className="item">
