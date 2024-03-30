@@ -47,6 +47,25 @@ export default function Game() {
       ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
     }
   }
+  class Line {
+    constructor({x , y, clear}) {
+      this.x = x;
+      this.y = y;
+      this.clear = clear;
+    }
+    draw() {
+      const ctx = canvasRef.current.getContext("2d")
+      ctx.beginPath ();
+      ctx.moveTo(this.x, this.y );
+      ctx.lineTo( positionX, positionY );
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#33ff33';
+      ctx.stroke ();
+      ctx.closePath ();
+      ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
+
+    }
+  }
 
   // useEffect(() => {
   //   const interval = setInterval(() => {}, 800);
@@ -239,12 +258,18 @@ export default function Game() {
     y: positionY,
     clear: clearState
   })
+  const lining = new Line ({
+    x: positionX -2,
+    y: positionY - 2,
+    clear: clearState
+  })
 
   // draw canvas and move object.
   useEffect(() => {
     // screening.draw()
-    testing.draw();
-    for(let i = 0; i<50;i++){
+    lining.draw()
+    // testing.draw();
+    // for(let i = 0; i<50;i++){
       setClearState(-1000)
       setPositionX(positionX+1)
       // setPositionY(positionY-1)
@@ -252,12 +277,12 @@ export default function Game() {
         setClearState(0)
         setPositionX(0)
       }
-    }
+    // }
     }, [frames]);
     useEffect(() => {
       if (!onShake) {
         if (positionY<600) {
-          setPositionY(positionY+4)
+          setPositionY(positionY+2)
         } else {
           setPositionY(600)
         }
