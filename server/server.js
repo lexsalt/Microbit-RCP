@@ -27,7 +27,7 @@ function onConnection(socket){
 }
 
 // MACBOOK PORT FOR MICROBIT
-// to check for the port number in mac:
+// to check for the port number in mac: 
 // open a Terminal window, type ls /dev/tty.usb*, and press enter.
 // let port = new SerialPort('/dev/tty.usbmodem14202', {
 // WINDOWS PORT FOR MICROBIT
