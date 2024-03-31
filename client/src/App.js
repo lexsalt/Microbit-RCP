@@ -416,7 +416,7 @@ export default function Game() {
           </div>
         </div>
         <div className="parent">
-          <div className="title">Time: </div>
+          <div className="title">Elapsed: </div>
 
           <div className="item">
           <p>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}</p>
