@@ -6,6 +6,8 @@ import testImage from "./img/1.png"
 import screenImage from "./img/screen.png"
 
 let pitchArray = [];
+const colorGreen = '#33ff33'
+const colorWhite = '#FFFFFF'
 
 export default function Game() {
   const canvasRef = useRef(null);
@@ -20,12 +22,22 @@ export default function Game() {
   const [canvasHeight] = useState(720);
   
   const [seconds, setSeconds] = useState(0);
+  const [miliSeconds, setMiliSeconds] = useState(0);
   const [time, setTime] = useState({});  
+  const [miliTime, setMiliTime] = useState({});  
+  const [lastTime, setLastTime] = useState({
+    min0: 0,
+    mm: 0,
+    sec0: 0,
+    ss: 0
+  });  
 
   const [frames, setFrames] = useState(0);
   const [animationFrame, setAnimationFrame] = useState(1);
   const [positionX, setPositionX] = useState(-20)
   const [positionY, setPositionY] = useState(600)
+  const [whiteX, setWhiteX] = useState(-20)
+  const [whiteY, setWhiteY] = useState(900)
   const [clearState, setClearState] = useState(-1000)
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [pitch, setPitch] = useState(0);
@@ -48,9 +60,10 @@ export default function Game() {
     }
   }
   class Line {
-    constructor({x , y, clear}) {
+    constructor({x , y, color, clear}) {
       this.x = x;
       this.y = y;
+      this.color = color;
       this.clear = clear;
     }
     draw() {
@@ -59,11 +72,29 @@ export default function Game() {
       ctx.moveTo(this.x, this.y );
       ctx.lineTo( positionX, positionY );
       ctx.lineWidth = 2;
-      ctx.strokeStyle = '#33ff33';
+      ctx.strokeStyle = this.color;
       ctx.stroke ();
       ctx.closePath ();
       ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
-
+    }
+  }
+  class LineTwo {
+    constructor({x , y, color, clear}) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.clear = clear;
+    }
+    draw() {
+      const ctx = canvasRef.current.getContext("2d")
+      ctx.beginPath ();
+      ctx.moveTo(this.x, this.y );
+      ctx.lineTo( whiteX, whiteX );
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = this.color;
+      ctx.stroke ();
+      ctx.closePath ();
+      ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
     }
   }
 
@@ -79,10 +110,42 @@ export default function Game() {
         setSeconds((seconds) => seconds + 1);
       }, 1000);
     }, [seconds]);
+    useEffect(() => {
+      setTimeout(() => {
+        setMiliSeconds((miliSeconds) => miliSeconds + 1);
+      }, 15);
+    }, [miliSeconds]);
 
     // set hour and time with seconds to time function
     useEffect(() => {
       let clock = secondsToTime(seconds);
+      //console.log("m: "+clock.m+" s: "+clock.s)
+      // function addZero(sec) {
+      //   if (
+      //     (sec === 0) |
+      //     (sec === 1) |
+      //     (sec === 2) |
+      //     (sec === 3) |
+      //     (sec === 4) |
+      //     (sec === 5) |
+      //     (sec === 6) |
+      //     (sec === 7) |
+      //     (sec === 8) |
+      //     (sec === 9)
+      //   ) {
+      //     return 0;
+      //   } else {
+      //     return "";
+      //   }
+      // }
+      let sec0 = addZero(clock.s);
+      let min0 = addZero(clock.m);
+      let mm = clock.m;
+      let ss = clock.s;
+      setTime({ min0, mm, sec0, ss });
+    }, [seconds]);
+    useEffect(() => {
+      let clock = secondsToTime(miliSeconds);
       //console.log("m: "+clock.m+" s: "+clock.s)
       function addZero(sec) {
         if (
@@ -106,8 +169,8 @@ export default function Game() {
       let min0 = addZero(clock.m);
       let mm = clock.m;
       let ss = clock.s;
-      setTime({ min0, mm, sec0, ss });
-    }, [seconds]);
+      setMiliTime({ min0, mm, sec0, ss });
+    }, [miliSeconds]);
     
     // seconds to time function
 
@@ -183,7 +246,7 @@ export default function Game() {
       setTimeout(() => {
         // console.log("Delayed for 0.5 second.");
         setOnShake(false);
-      }, "300");
+      }, "150");
     }
   }
   function pitchAdd(num, arr) {
@@ -261,9 +324,33 @@ export default function Game() {
   const lining = new Line ({
     x: positionX -2,
     y: positionY - 2,
+    color: colorGreen,
     clear: clearState
   })
-
+  const line2 = new LineTwo ({
+    x: whiteX -2,
+    y: whiteY,
+    color: colorWhite,
+    clear: clearState
+  })
+  function addZero(sec) {
+    if (
+      (sec === 0) |
+      (sec === 1) |
+      (sec === 2) |
+      (sec === 3) |
+      (sec === 4) |
+      (sec === 5) |
+      (sec === 6) |
+      (sec === 7) |
+      (sec === 8) |
+      (sec === 9)
+    ) {
+      return 0;
+    } else {
+      return "";
+    }
+  }
   // draw canvas and move object.
   useEffect(() => {
     // screening.draw()
@@ -272,10 +359,12 @@ export default function Game() {
     // for(let i = 0; i<50;i++){
       setClearState(-1000)
       setPositionX(positionX+1)
+      setWhiteX(whiteX+1)
       // setPositionY(positionY-1)
       if (positionX>canvasWidth+200){
         setClearState(0)
         setPositionX(0)
+        setWhiteX(0)
       }
     // }
     }, [frames]);
@@ -287,6 +376,19 @@ export default function Game() {
           setPositionY(600)
         }
       } else if (onShake) {
+        if (miliSeconds > 10) {
+          let clock = secondsToTime(miliSeconds);
+          //console.log("m: "+clock.m+" s: "+clock.s)
+  
+          let sec0 = addZero(clock.s);
+          let min0 = addZero(clock.m);
+          let mm = clock.m;
+          let ss = clock.s;
+          setLastTime({ min0, mm, sec0, ss });
+        }
+
+        setMiliSeconds(0)
+        // line2.draw()
         if (positionY>450) {
           for (let i = 0; i<3;i++) {
             setPositionY(positionY-2)
@@ -295,6 +397,10 @@ export default function Game() {
         }
       }      
       }, [frames]);
+  const startLine = (status) =>{
+    
+
+  }
 
   return (
     <div className="App">
@@ -302,11 +408,25 @@ export default function Game() {
       </div>
       <div className="mother">
         <div className="parent">
+          <div className="title">positionX: </div>
+
+          <div className="item" style={{display: "flex", flexDirection: "column", gap:"1"}}>
+            <p>{positionX}</p>
+            <p>{whiteX}</p>
+          </div>
+        </div>
+        <div className="parent">
           <div className="title">Time: </div>
 
           <div className="item">
-            <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
+          <p>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}</p>
           </div>
+          {/* <div className="item">
+            <p>{miliTime.min0 + miliTime.mm + "." + miliTime.sec0 + miliTime.ss}</p>
+          </div>
+          <div className="item">
+            <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
+          </div> */}
         </div>
         <div className="parent">
           <div className="title">Position: </div>
