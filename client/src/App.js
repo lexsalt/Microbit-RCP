@@ -450,6 +450,9 @@ export default function Game() {
       </div>
       <div className="screen">
       <div className="container">
+      <div style={{ width: "100%", display: "flex", position: "absolute", alignItems: "center", justifyContent: "center" , paddingY: "20vh", marginTop: "20vh"}}>
+      <p style={{color: "white", fontSize: "5em"}}>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss + " s"}</p>
+      </div>
       <div className="brand">Monitor</div>
       <div className="box" style={{ background: `url(${screenImage})`, height: "720px", width: "1360" }}></div>
       <canvas className="overlay"
