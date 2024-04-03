@@ -412,7 +412,8 @@ export default function Game() {
 
           <div className="item" style={{display: "flex", flexDirection: "column", gap:"1"}}>
             <p>{positionX}</p>
-            <p>{whiteX}</p>
+            <p>{positionY}</p>
+            {/* <p>{whiteX}</p> */}
           </div>
         </div>
         <div className="parent">
@@ -441,10 +442,13 @@ export default function Game() {
           <div className="title">Input: </div>
 
           <div className="item">
+            <div style={{  display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", paddingY: "1vh", marginY: "1vh"}}>
             <div>
               <p>Shake: </p>
             </div>
-            <div className="value">{onShake ? "on" : "off"}</div>
+            <div className="value" style={{ height: "3vh", paddingTop: "1vh", paddingBottom: "1vh", marginY: "1vh"}}>{onShake ? "on" : "off"}</div>
+            <button style={{background:"lightgreen", height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px" }} onClick={shakeIt}>Shake!</button>
+            </div>
           </div>
         </div>
       </div>

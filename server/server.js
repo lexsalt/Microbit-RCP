@@ -29,10 +29,10 @@ function onConnection(socket){
 // MACBOOK PORT FOR MICROBIT
 // to check for the port number in mac: 
 // open a Terminal window, type ls /dev/tty.usb*, and press enter.
-// let port = new SerialPort('/dev/tty.usbmodem14202', {
+let port = new SerialPort('/dev/tty.usbmodem14202', {
 // WINDOWS PORT FOR MICROBIT
 // to check the COMXX number look at device manager
-let port = new SerialPort('COM8', {
+// let port = new SerialPort('COM8', {
 // let port = new SerialPort('/dev/tty.usbmodem14202', {
     baudRate: 115200,
     autoOpen: false
