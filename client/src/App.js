@@ -18,6 +18,7 @@ export default function Game() {
   const [canvasHeight] = useState(720);
 
   const [seconds, setSeconds] = useState(0);
+  const [halfSeconds, setHalfSeconds] = useState(0);
   const [miliSeconds, setMiliSeconds] = useState(0);
   const [time, setTime] = useState({});
   const [miliTime, setMiliTime] = useState({});
@@ -36,6 +37,7 @@ export default function Game() {
   const [pitch, setPitch] = useState(0);
   const [onShake, setOnShake] = useState(false);
   const [stroke, setStroke] = useState(true);
+  const [pushes, setPushes] = useState(0)
 
 
   // object constructor of a line to draw on canvas
@@ -64,6 +66,10 @@ export default function Game() {
   useEffect(() => {
     setTimeout(() => {
       setSeconds((seconds) => seconds + 1);
+      if (seconds === 59) {
+        setSeconds(0)
+        setPushes(0)
+      }
     }, 1000);
     let clock = secondsToTime(seconds);
     let sec0 = addZero(clock.s);
@@ -72,6 +78,15 @@ export default function Game() {
     let ss = clock.s;
     setTime({ min0, mm, sec0, ss });
   }, [seconds]);
+
+  useEffect(()=>{
+    setTimeout(() => {
+      setHalfSeconds((halfSeconds) => halfSeconds + 1);
+      if (seconds === 59) {
+        setHalfSeconds(0)
+      }
+    }, 400);
+  }, [halfSeconds])
 
   useEffect(() => {
     setTimeout(() => {
@@ -119,7 +134,7 @@ export default function Game() {
   useEffect(() => {
     setTimeout(() => {
       setFrames((frames) => frames + 1);
-    }, 2);
+    }, 20);
   });
 
   function processData(data) {
@@ -254,10 +269,10 @@ export default function Game() {
       }
       setMiliSeconds(0);
       if (positionY > 500) {
-        for (let i = 0; i < 3; i++) {
+        // for (let i = 0; i < 3; i++) {
           setPositionY(positionY - 2);
           setPositionX(positionX);
-        }
+        // }
       }
     }
   }, [frames]);
@@ -267,20 +282,21 @@ export default function Game() {
     if (!stroke) {
       setTimeout(() => {
         shakeIt();
-      }, 50);
+      }, 450);
     } else if (stroke) {
       // console.log(`stroke: ${stroke}`);
     }
-  }, [frames]);
+  }, [halfSeconds]);
 
   // function to trigger shake status
   const shakeIt = () => {
     if (!onShake) {
       setOnShake(true);
+      setPushes(pushes + 1)
       setTimeout(() => {
         // console.log("Delayed for 0.5 second.");
         setOnShake(false);
-      }, 50);
+      }, 100);
     }
   };
 
@@ -288,8 +304,10 @@ export default function Game() {
   const strokeIt = () => {
     if (stroke) {
       setStroke(false);
+
     } else if (!stroke) {
       setStroke(true);
+
     }
   };
 
@@ -306,39 +324,44 @@ export default function Game() {
           </div>
         </div> */}
         <div className="parent">
-          <div className="title">Elapsed: </div>
           <div className="item">
+          <div className="title">Elapsed: </div>
+          
             {miliSeconds < 60 && miliSeconds > 30 ? (
               <p style={{ color: "green" }}>{miliSeconds}</p>
             ) : (
               <p style={{ color: "red" }}>{miliSeconds}</p>
             )}
-          </div>
-          <div className="item">
             <p>
               {lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}
             </p>
           </div>
           {/* <div className="item">
             <p>{miliTime.min0 + miliTime.mm + "." + miliTime.sec0 + miliTime.ss}</p>
-          </div>
-          <div className="item">
-            <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
           </div> */}
+          <div className="item">
+          <div className="title">
+            seconds:
+          </div>
+            <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
+          </div>
+          <div className="item">
+            <div className="title">
+            pushes:
+            </div>
+            <p>{pushes}</p>
+          </div> 
         </div>
         <div className="parent">
-          <div className="title">Position: </div>
           <div className="item">
-            <div>
-              <p>Pitch: </p>
-            </div>
-            <div className="value">{pitch}</div>
+          <div className="title">Pitch: </div>
+            <p>{pitch}</p>
           </div>
         </div>
         <div className="parent">
-          <div className="title">Input: </div>
 
           <div className="item">
+          <div className="title">Input: </div>
             <div>
               {/* <div>
               <p>stroke</p>
