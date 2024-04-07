@@ -2,216 +2,125 @@
 import React, { useState, useEffect, useRef } from "react";
 import { socket } from "./socket";
 import "./App.css";
-import testImage from "./img/1.png"
-import screenImage from "./img/screen.png"
+import screenImage from "./img/screen.png";
 
 let pitchArray = [];
-const colorGreen = '#33ff33'
-const colorWhite = '#FFFFFF'
-
+const colorGreen = "#33ff33";
 const defaultPositionY = 650;
 
 export default function Game() {
   const canvasRef = useRef(null);
-  // image import
-  const test = new Image();
-  test.src = testImage;
 
   // const [canvasWidth] = useState(1024);
   const [canvasWidth] = useState(1360);
   // const [canvasHeight] = useState(576);
   // const [onOff, setOnOff] = useState(true)
   const [canvasHeight] = useState(720);
-  
+
   const [seconds, setSeconds] = useState(0);
   const [miliSeconds, setMiliSeconds] = useState(0);
-  const [time, setTime] = useState({});  
-  const [miliTime, setMiliTime] = useState({});  
+  const [time, setTime] = useState({});
+  const [miliTime, setMiliTime] = useState({});
   const [lastTime, setLastTime] = useState({
     min0: 0,
     mm: 0,
     sec0: 0,
-    ss: 0
+    ss: 0,
   });
-  const [lastColor, setLastColor] = useState("white")
-
+  const [lastColor, setLastColor] = useState("white");
   const [frames, setFrames] = useState(0);
-  const [animationFrame, setAnimationFrame] = useState(1);
-  const [positionX, setPositionX] = useState(-20)
-  const [positionY, setPositionY] = useState(650)
-  const [whiteX, setWhiteX] = useState(-20)
-  const [whiteY, setWhiteY] = useState(900)
-  const [clearState, setClearState] = useState(-1000)
+  const [positionX, setPositionX] = useState(-20);
+  const [positionY, setPositionY] = useState(650);
+  const [clearState, setClearState] = useState(-1000);
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [pitch, setPitch] = useState(0);
-  // const [roll, setRoll] = useState(0);
-  // const [yaw, setYaw] = useState(0);
   const [onShake, setOnShake] = useState(false);
-  const [stroke, setStroke] = useState(true)
+  const [stroke, setStroke] = useState(true);
 
-  class Sprite {
-    constructor({ image, x, y , clear}) {
-      this.image = image;
+
+  // object constructor of a line to draw on canvas
+  class Line {
+    constructor({ x, y, color, clear }) {
       this.x = x;
       this.y = y;
+      this.color = color;
       this.clear = clear;
     }
     draw() {
       const ctx = canvasRef.current.getContext("2d");
-      // 
-      ctx.drawImage(this.image, this.x, this.y, 3,3);
-      ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
-    }
-  }
-  class Line {
-    constructor({x , y, color, clear}) {
-      this.x = x;
-      this.y = y;
-      this.color = color;
-      this.clear = clear;
-    }
-    draw() {
-      const ctx = canvasRef.current.getContext("2d")
-      ctx.beginPath ();
-      ctx.moveTo(this.x, this.y );
-      ctx.lineTo( positionX, positionY );
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(positionX, positionY);
       ctx.lineWidth = 2;
       ctx.strokeStyle = this.color;
-      ctx.stroke ();
-      ctx.closePath ();
-      ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
-    }
-  }
-  class LineTwo {
-    constructor({x , y, color, clear}) {
-      this.x = x;
-      this.y = y;
-      this.color = color;
-      this.clear = clear;
-    }
-    draw() {
-      const ctx = canvasRef.current.getContext("2d")
-      ctx.beginPath ();
-      ctx.moveTo(this.x, this.y );
-      ctx.lineTo( whiteX, whiteX );
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = this.color;
-      ctx.stroke ();
-      ctx.closePath ();
-      ctx.clearRect(this.clear,this.clear, canvasWidth, canvasHeight)
+      ctx.stroke();
+      ctx.closePath();
+      ctx.clearRect(this.clear, this.clear, canvasWidth, canvasHeight);
     }
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {}, 800);
-  //   return () => clearInterval(interval);
-  // }, []);
+  // hooks to access clock for setting seconds and miliseconds
+  // set hour and time with seconds to time function
+  useEffect(() => {
+    setTimeout(() => {
+      setSeconds((seconds) => seconds + 1);
+    }, 1000);
+    let clock = secondsToTime(seconds);
+    let sec0 = addZero(clock.s);
+    let min0 = addZero(clock.m);
+    let mm = clock.m;
+    let ss = clock.s;
+    setTime({ min0, mm, sec0, ss });
+  }, [seconds]);
 
-    // seconds timer
+  useEffect(() => {
+    setTimeout(() => {
+      setMiliSeconds((miliSeconds) => miliSeconds + 1);
+    }, 10);
+    let clock = secondsToTime(miliSeconds);
+    //console.log("m: "+clock.m+" s: "+clock.s)
+    let sec0 = addZero(clock.s);
+    let min0 = addZero(clock.m);
+    let mm = clock.m;
+    let ss = clock.s;
+    setMiliTime({ min0, mm, sec0, ss });
+  }, [miliSeconds]);
 
-    useEffect(() => {
-      setTimeout(() => {
-        setSeconds((seconds) => seconds + 1);
-      }, 1000);
-    }, [seconds]);
-    useEffect(() => {
-      setTimeout(() => {
-        setMiliSeconds((miliSeconds) => miliSeconds + 1);
-      }, 15);
-    }, [miliSeconds]);
-
-    // set hour and time with seconds to time function
-    useEffect(() => {
-      let clock = secondsToTime(seconds);
-      //console.log("m: "+clock.m+" s: "+clock.s)
-      // function addZero(sec) {
-      //   if (
-      //     (sec === 0) |
-      //     (sec === 1) |
-      //     (sec === 2) |
-      //     (sec === 3) |
-      //     (sec === 4) |
-      //     (sec === 5) |
-      //     (sec === 6) |
-      //     (sec === 7) |
-      //     (sec === 8) |
-      //     (sec === 9)
-      //   ) {
-      //     return 0;
-      //   } else {
-      //     return "";
-      //   }
-      // }
-      let sec0 = addZero(clock.s);
-      let min0 = addZero(clock.m);
-      let mm = clock.m;
-      let ss = clock.s;
-      setTime({ min0, mm, sec0, ss });
-    }, [seconds]);
-    useEffect(() => {
-      let clock = secondsToTime(miliSeconds);
-      //console.log("m: "+clock.m+" s: "+clock.s)
-      function addZero(sec) {
-        if (
-          (sec === 0) |
-          (sec === 1) |
-          (sec === 2) |
-          (sec === 3) |
-          (sec === 4) |
-          (sec === 5) |
-          (sec === 6) |
-          (sec === 7) |
-          (sec === 8) |
-          (sec === 9)
-        ) {
-          return 0;
-        } else {
-          return "";
-        }
-      }
-      let sec0 = addZero(clock.s);
-      let min0 = addZero(clock.m);
-      let mm = clock.m;
-      let ss = clock.s;
-      setMiliTime({ min0, mm, sec0, ss });
-    }, [miliSeconds]);
-    
-    // seconds to time function
-
-    function secondsToTime(secs) {
-      let divisor_for_minutes = secs % (60 * 60);
-      let minutes = Math.floor(divisor_for_minutes / 60);
-      if (secs === 3600) {
-        minutes = 60;
-      }
-  
-      let divisor_for_seconds = divisor_for_minutes % 60;
-      let seconds = Math.ceil(divisor_for_seconds);
-  
-      let obj = {
-        m: minutes,
-        s: seconds,
-      };
-      return obj;
+  // seconds to time function
+  function secondsToTime(secs) {
+    let divisor_for_minutes = secs % (60 * 60);
+    let minutes = Math.floor(divisor_for_minutes / 60);
+    if (secs === 3600) {
+      minutes = 60;
     }
-    
-    // set frames counter to set all the states
-    useEffect(() => {
-      setTimeout(() => {
-        setFrames((frames) => frames + 1);
-      }, 2);
-    });
-  
-    // set animation frames timer (could rework to a different animation timer) fixed animation timer for now
-    useEffect(() => {
-      if (frames % 4 === 0) {
-        if (animationFrame > 2) {
-          setAnimationFrame(0);
-        } else if (animationFrame >= 0) {
-          setAnimationFrame((animationFrame) => animationFrame + 1);
-        }
-      }
-    }, [frames]);
+
+    let divisor_for_seconds = divisor_for_minutes % 60;
+    let seconds = Math.ceil(divisor_for_seconds);
+
+    let obj = {
+      m: minutes,
+      s: seconds,
+    };
+    return obj;
+  }
+
+  // function to add 0 to 0-9 seconds on clock
+  function addZero(sec) {
+    if (sec < 10) {
+      return 0;
+    } else {
+      return "";
+    }
+  }
+
+  // set frames counter to set all the states
+  // you have to set it as a dependency to the main hook to avoid
+  // red flags of: "to many re-renders"
+  useEffect(() => {
+    setTimeout(() => {
+      setFrames((frames) => frames + 1);
+    }, 2);
+  });
 
   function processData(data) {
     let checkData = Number(data);
@@ -240,19 +149,11 @@ export default function Game() {
         // console.log(arr)
         // console.log(data)
       } else if (data.indexOf("s") === 0) {
-        shakeIt()
+        shakeIt();
       }
     }
   }
-  const shakeIt = () => {
-    if (!onShake) {
-      setOnShake(true)
-      setTimeout(() => {
-        // console.log("Delayed for 0.5 second.");
-        setOnShake(false);
-      }, "150");
-    }
-  }
+
   function pitchAdd(num, arr) {
     if (arr.length > 40) {
       arr.pop();
@@ -279,14 +180,6 @@ export default function Game() {
 
     return element_having_max_freq;
   }
-  // function average (arr) {
-  //   let sum = 0;
-  //   for (let i = 0; i<9; i++) {
-  //     sum = sum + arr[i]
-  //     // console.log(sum)
-  //   }
-  //   return Math.floor(sum/arr.length);
-  // }
 
   function checkNum(x) {
     if (isNaN(x)) {
@@ -295,6 +188,7 @@ export default function Game() {
     return true;
   }
 
+  // Event listener for connection to socket
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
@@ -318,117 +212,90 @@ export default function Game() {
       socket.off("disconnect", onDisconnect);
     };
   }, []);
-
-  const testing = new Sprite({
-    image: test,
-    x: positionX,
-    y: positionY,
-    clear: clearState
-  })
-  const lining = new Line ({
-    x: positionX -2,
+  // instantiate an object to draw on canvas
+  const lining = new Line({
+    x: positionX - 2,
     y: positionY - 2,
     color: colorGreen,
-    clear: clearState
-  })
-  const line2 = new LineTwo ({
-    x: whiteX -2,
-    y: whiteY,
-    color: colorWhite,
-    clear: clearState
-  })
-  function addZero(sec) {
-    if (
-      (sec === 0) |
-      (sec === 1) |
-      (sec === 2) |
-      (sec === 3) |
-      (sec === 4) |
-      (sec === 5) |
-      (sec === 6) |
-      (sec === 7) |
-      (sec === 8) |
-      (sec === 9)
-    ) {
-      return 0;
-    } else {
-      return "";
-    }
-  }
-  // draw canvas and move object.
+    clear: clearState,
+  });
+
+  // Main hook: draw canvas and move object.
   useEffect(() => {
-    // screening.draw()
-    lining.draw()
-    // testing.draw();
-    // for(let i = 0; i<50;i++){
-      setClearState(-1000)
-      setPositionX(positionX+1)
-      setWhiteX(whiteX+1)
-      // setPositionY(positionY-1)
-      if (positionX>canvasWidth+200){
-        setClearState(0)
-        setPositionX(0)
-        setWhiteX(0)
+    lining.draw();
+    setClearState(-1000);
+    setPositionX(positionX + 1);
+    // Reset condition: When x reaches edge of canvas + 200
+    if (positionX > canvasWidth + 200) {
+      setClearState(0);
+      setPositionX(0);
+    }
+    // Shake trigger
+    if (!onShake) {
+      if (positionY < defaultPositionY) {
+        setPositionY(positionY + 3);
+      } else {
+        setPositionY(defaultPositionY);
       }
-    // }
-    }, [frames]);
-    useEffect(() => {
-      if (!onShake) {
-        if (positionY<defaultPositionY) {
-          setPositionY(positionY+3)
+    } else if (onShake) {
+      if (miliSeconds > 10) {
+        if (miliSeconds < 60 && miliSeconds > 30) {
+          setLastColor("green");
         } else {
-          setPositionY(defaultPositionY)
+          setLastColor("red");
         }
-      } else if (onShake) {
-        if (miliSeconds > 10) {
-          if (miliSeconds< 60 && miliSeconds>30) {
-            setLastColor("green")
-          } else {
-            setLastColor("red")
-          }
-
-          let clock = secondsToTime(miliSeconds);
-          //console.log("m: "+clock.m+" s: "+clock.s)
-  
-          let sec0 = addZero(clock.s);
-          let min0 = addZero(clock.m);
-          let mm = clock.m;
-          let ss = clock.s;
-          setLastTime({ min0, mm, sec0, ss });
-        }
-
-        setMiliSeconds(0)
-        // line2.draw()
-        if (positionY>500) {
-          for (let i = 0; i<3;i++) {
-            setPositionY(positionY-2)
-            setPositionX(positionX)
-          }
-        }
-      }      
-      }, [frames]);
-      useEffect(()=>{
-        if (!stroke) {
-          setTimeout(() => {
-            shakeIt()
-          }, 50);
-        } else if (stroke) {
-          console.log(`stroke: ${stroke}`)
-        }
-
-      }, [frames])
-      const strokeIt = () => {
-        if (stroke) {
-          setStroke(false)
-        } else if (!stroke) {
-          setStroke(true)
+        let clock = secondsToTime(miliSeconds);
+        //console.log("m: "+clock.m+" s: "+clock.s)
+        let sec0 = addZero(clock.s);
+        let min0 = addZero(clock.m);
+        let mm = clock.m;
+        let ss = clock.s;
+        setLastTime({ min0, mm, sec0, ss });
+      }
+      setMiliSeconds(0);
+      if (positionY > 500) {
+        for (let i = 0; i < 3; i++) {
+          setPositionY(positionY - 2);
+          setPositionX(positionX);
         }
       }
+    }
+  }, [frames]);
+
+  //hook to trigger shake every 0.5 secs if stroke mode is false
+  useEffect(() => {
+    if (!stroke) {
+      setTimeout(() => {
+        shakeIt();
+      }, 50);
+    } else if (stroke) {
+      // console.log(`stroke: ${stroke}`);
+    }
+  }, [frames]);
+
+  // function to trigger shake status
+  const shakeIt = () => {
+    if (!onShake) {
+      setOnShake(true);
+      setTimeout(() => {
+        // console.log("Delayed for 0.5 second.");
+        setOnShake(false);
+      }, 50);
+    }
+  };
+
+  // function to change mode stroke on/off
+  const strokeIt = () => {
+    if (stroke) {
+      setStroke(false);
+    } else if (!stroke) {
+      setStroke(true);
+    }
+  };
 
   return (
     <div className="App">
-      <div>
-      </div>
+      <div></div>
       <div className="mother">
         {/* <div className="parent">
           <div className="title">positionX: </div>
@@ -441,10 +308,16 @@ export default function Game() {
         <div className="parent">
           <div className="title">Elapsed: </div>
           <div className="item">
-          {(miliSeconds< 60 && miliSeconds>49 ? <p style={{color: "green"}}>{miliSeconds}</p>:<p style={{color: "red"}}>{miliSeconds}</p>)}
+            {miliSeconds < 60 && miliSeconds > 30 ? (
+              <p style={{ color: "green" }}>{miliSeconds}</p>
+            ) : (
+              <p style={{ color: "red" }}>{miliSeconds}</p>
+            )}
           </div>
           <div className="item">
-          <p>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}</p>
+            <p>
+              {lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}
+            </p>
           </div>
           {/* <div className="item">
             <p>{miliTime.min0 + miliTime.mm + "." + miliTime.sec0 + miliTime.ss}</p>
@@ -453,7 +326,7 @@ export default function Game() {
             <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
           </div> */}
         </div>
-        {/* <div className="parent">
+        <div className="parent">
           <div className="title">Position: </div>
           <div className="item">
             <div>
@@ -461,41 +334,102 @@ export default function Game() {
             </div>
             <div className="value">{pitch}</div>
           </div>
-        </div> */}
+        </div>
         <div className="parent">
           <div className="title">Input: </div>
 
           <div className="item">
             <div>
-            {/* <div>
+              {/* <div>
               <p>stroke</p>
             </div> */}
-            <div>
-            <button style={{background: (!stroke ? "green": "red"), height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px", color: "white", fontSize:"0.9em" }} onClick={strokeIt}>Stroke!</button>
-            </div>
-            {/* <div>
+              <div>
+                <button
+                  style={{
+                    background: !stroke ? "green" : "red",
+                    height: "3vh",
+                    width: "100%",
+                    paddingTop: "1vh",
+                    paddingBottom: "1vh",
+                    marginBottom: "1vh",
+                    border: "2px black solid",
+                    borderRadius: "5px",
+                    color: "white",
+                    fontSize: "0.9em",
+                  }}
+                  onClick={strokeIt}
+                >
+                  Stroke!
+                </button>
+              </div>
+              {/* <div>
               <p>Shake: </p>
             </div> */}
-            {/* <div className="value" style={{ height: "3vh", paddingTop: "1vh", paddingBottom: "1vh", marginY: "1vh"}}>{onShake ? "on" : "off"}</div> */}
-            <button style={{background:"green", height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px", color: "white", fontSize:"0.9em" }} onClick={shakeIt}>Shake!</button>
+              {/* <div className="value" style={{ height: "3vh", paddingTop: "1vh", paddingBottom: "1vh", marginY: "1vh"}}>{onShake ? "on" : "off"}</div> */}
+              <button
+                style={{
+                  background: "green",
+                  height: "3vh",
+                  width: "100%",
+                  paddingTop: "1vh",
+                  paddingBottom: "1vh",
+                  marginBottom: "1vh",
+                  border: "2px black solid",
+                  borderRadius: "5px",
+                  color: "white",
+                  fontSize: "0.9em",
+                }}
+                onClick={shakeIt}
+              >
+                Shake!
+              </button>
             </div>
           </div>
         </div>
       </div>
       <div className="screen">
-      <div className="container">
-      <div style={{ width: "100%", display: "flex", position: "absolute", alignItems: "center", justifyContent: "center" , paddingY: "20vh", marginTop: "20vh"}}>
-      {(!stroke ? <p style={{color: "green", fontSize: "5em"}}>{ "0.45"+" s"}</p> : <p style={{color: lastColor, fontSize: "5em"}}>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss + " s"}</p>)} 
-      </div>
-      <div className="brand">Monitor</div>
-      <div className="box" style={{ background: `url(${screenImage})`, height: "720px", width: "1360" }}></div>
-      <canvas className="overlay"
-          ref={canvasRef}
-          width={canvasWidth}
-          height={canvasHeight}
-          // style={{  border: "1px darkblue solid" }}
-        ></canvas>
-      </div>
+        <div className="container">
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              position: "absolute",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingY: "20vh",
+              marginTop: "20vh",
+            }}
+          >
+            {!stroke ? (
+              <p style={{ color: "green", fontSize: "5em" }}>{"0.45" + " s"}</p>
+            ) : (
+              <p style={{ color: lastColor, fontSize: "5em" }}>
+                {lastTime.min0 +
+                  lastTime.mm +
+                  "." +
+                  lastTime.sec0 +
+                  lastTime.ss +
+                  " s"}
+              </p>
+            )}
+          </div>
+          <div className="brand">Monitor</div>
+          <div
+            className="box"
+            style={{
+              background: `url(${screenImage})`,
+              height: "720px",
+              width: "1360",
+            }}
+          ></div>
+          <canvas
+            className="overlay"
+            ref={canvasRef}
+            width={canvasWidth}
+            height={canvasHeight}
+            // style={{  border: "1px darkblue solid" }}
+          ></canvas>
+        </div>
       </div>
     </div>
   );
