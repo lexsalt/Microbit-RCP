@@ -144,6 +144,9 @@ export default function Game() {
       let ss = clock.s;
       setTime({ min0, mm, sec0, ss });
     }, [seconds]);
+
+    // sets militimes in dateTime format
+
     useEffect(() => {
       let clock = secondsToTime(miliSeconds);
       //console.log("m: "+clock.m+" s: "+clock.s)
@@ -191,7 +194,8 @@ export default function Game() {
       return obj;
     }
     
-    // set frames counter to set all the states
+    // set frames counter to set all the states and to avoid triggering
+    // warnings of too much re-renderings
     useEffect(() => {
       setTimeout(() => {
         setFrames((frames) => frames + 1);
@@ -199,15 +203,16 @@ export default function Game() {
     });
   
     // set animation frames timer (could rework to a different animation timer) fixed animation timer for now
-    useEffect(() => {
-      if (frames % 4 === 0) {
-        if (animationFrame > 2) {
-          setAnimationFrame(0);
-        } else if (animationFrame >= 0) {
-          setAnimationFrame((animationFrame) => animationFrame + 1);
-        }
-      }
-    }, [frames]);
+    // DISABLE FOR THIS PROJECT. SEE IF CAN ERASE
+    // useEffect(() => {
+    //   if (frames % 4 === 0) {
+    //     if (animationFrame > 2) {
+    //       setAnimationFrame(0);
+    //     } else if (animationFrame >= 0) {
+    //       setAnimationFrame((animationFrame) => animationFrame + 1);
+    //     }
+    //   }
+    // }, [frames]);
 
   function processData(data) {
     let checkData = Number(data);
