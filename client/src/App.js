@@ -9,6 +9,8 @@ let pitchArray = [];
 const colorGreen = '#33ff33'
 const colorWhite = '#FFFFFF'
 
+const defaultPositionY = 650;
+
 export default function Game() {
   const canvasRef = useRef(null);
   // image import
@@ -30,12 +32,13 @@ export default function Game() {
     mm: 0,
     sec0: 0,
     ss: 0
-  });  
+  });
+  const [lastColor, setLastColor] = useState("white")
 
   const [frames, setFrames] = useState(0);
   const [animationFrame, setAnimationFrame] = useState(1);
   const [positionX, setPositionX] = useState(-20)
-  const [positionY, setPositionY] = useState(600)
+  const [positionY, setPositionY] = useState(650)
   const [whiteX, setWhiteX] = useState(-20)
   const [whiteY, setWhiteY] = useState(900)
   const [clearState, setClearState] = useState(-1000)
@@ -44,6 +47,7 @@ export default function Game() {
   // const [roll, setRoll] = useState(0);
   // const [yaw, setYaw] = useState(0);
   const [onShake, setOnShake] = useState(false);
+  const [stroke, setStroke] = useState(true)
 
   class Sprite {
     constructor({ image, x, y , clear}) {
@@ -370,13 +374,19 @@ export default function Game() {
     }, [frames]);
     useEffect(() => {
       if (!onShake) {
-        if (positionY<600) {
-          setPositionY(positionY+2)
+        if (positionY<defaultPositionY) {
+          setPositionY(positionY+3)
         } else {
-          setPositionY(600)
+          setPositionY(defaultPositionY)
         }
       } else if (onShake) {
         if (miliSeconds > 10) {
+          if (miliSeconds< 60 && miliSeconds>30) {
+            setLastColor("green")
+          } else {
+            setLastColor("red")
+          }
+
           let clock = secondsToTime(miliSeconds);
           //console.log("m: "+clock.m+" s: "+clock.s)
   
@@ -389,7 +399,7 @@ export default function Game() {
 
         setMiliSeconds(0)
         // line2.draw()
-        if (positionY>450) {
+        if (positionY>500) {
           for (let i = 0; i<3;i++) {
             setPositionY(positionY-2)
             setPositionX(positionX)
@@ -397,29 +407,42 @@ export default function Game() {
         }
       }      
       }, [frames]);
-  const startLine = (status) =>{
-    
+      useEffect(()=>{
+        if (!stroke) {
+          setTimeout(() => {
+            shakeIt()
+          }, 50);
+        } else if (stroke) {
+          console.log(`stroke: ${stroke}`)
+        }
 
-  }
+      }, [frames])
+      const strokeIt = () => {
+        if (stroke) {
+          setStroke(false)
+        } else if (!stroke) {
+          setStroke(true)
+        }
+      }
 
   return (
     <div className="App">
       <div>
       </div>
       <div className="mother">
-        <div className="parent">
+        {/* <div className="parent">
           <div className="title">positionX: </div>
 
           <div className="item" style={{display: "flex", flexDirection: "column", gap:"1"}}>
             <p>{positionX}</p>
             <p>{positionY}</p>
-            {/* <p>{whiteX}</p> */}
           </div>
-        </div>
+        </div> */}
         <div className="parent">
           <div className="title">Elapsed: </div>
 
-          <div className="item">
+          <div className="item" style={{display: "flex", flexDirection: "column"}}>
+          {(miliSeconds< 60 && miliSeconds>49 ? <p style={{color: "green"}}>{miliSeconds}</p>:<p style={{color: "red"}}>{miliSeconds}</p>)}
           <p>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}</p>
           </div>
           {/* <div className="item">
@@ -429,7 +452,7 @@ export default function Game() {
             <p>{time.min0 + time.mm + ":" + time.sec0 + time.ss}</p>
           </div> */}
         </div>
-        <div className="parent">
+        {/* <div className="parent">
           <div className="title">Position: </div>
           <div className="item">
             <div>
@@ -437,17 +460,23 @@ export default function Game() {
             </div>
             <div className="value">{pitch}</div>
           </div>
-        </div>
+        </div> */}
         <div className="parent">
           <div className="title">Input: </div>
 
           <div className="item">
             <div style={{  display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", paddingY: "1vh", marginY: "1vh"}}>
+            {/* <div>
+              <p>stroke</p>
+            </div> */}
             <div>
-              <p>Shake: </p>
+            <button style={{background: (!stroke ? "green": "red"), height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px", color: "white", fontSize:"0.9em" }} onClick={strokeIt}>Stroke!</button>
             </div>
-            <div className="value" style={{ height: "3vh", paddingTop: "1vh", paddingBottom: "1vh", marginY: "1vh"}}>{onShake ? "on" : "off"}</div>
-            <button style={{background:"lightgreen", height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px" }} onClick={shakeIt}>Shake!</button>
+            {/* <div>
+              <p>Shake: </p>
+            </div> */}
+            {/* <div className="value" style={{ height: "3vh", paddingTop: "1vh", paddingBottom: "1vh", marginY: "1vh"}}>{onShake ? "on" : "off"}</div> */}
+            <button style={{background:"green", height: "3vh", width: "100%", paddingTop: "1vh", paddingBottom: "1vh", marginBottom: "1vh", border: "2px black solid", borderRadius: "5px", color: "white", fontSize:"0.9em" }} onClick={shakeIt}>Shake!</button>
             </div>
           </div>
         </div>
@@ -455,7 +484,7 @@ export default function Game() {
       <div className="screen">
       <div className="container">
       <div style={{ width: "100%", display: "flex", position: "absolute", alignItems: "center", justifyContent: "center" , paddingY: "20vh", marginTop: "20vh"}}>
-      <p style={{color: "white", fontSize: "5em"}}>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss + " s"}</p>
+      {(!stroke ? <p style={{color: "green", fontSize: "5em"}}>{ "0.45"+" s"}</p> : <p style={{color: lastColor, fontSize: "5em"}}>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss + " s"}</p>)} 
       </div>
       <div className="brand">Monitor</div>
       <div className="box" style={{ background: `url(${screenImage})`, height: "720px", width: "1360" }}></div>
