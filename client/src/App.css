@@ -60,9 +60,11 @@
     /* width: 100vw; */
     /* background-color: blueviolet; */
     border: 1px black solid;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
 }
 p {
-    font-size: 2em;
+    font-size: 1.7em;
     /* padding: 1em; */
 }
 .value {
@@ -76,7 +78,6 @@ p {
     font-size: 2em;
     padding-left: 2vw;
     padding-right: 2vw;
-    padding: 1vh;
     margin: 1vw;
 }
 .item {

@@ -440,9 +440,10 @@ export default function Game() {
         </div> */}
         <div className="parent">
           <div className="title">Elapsed: </div>
-
-          <div className="item" style={{display: "flex", flexDirection: "column"}}>
+          <div className="item">
           {(miliSeconds< 60 && miliSeconds>49 ? <p style={{color: "green"}}>{miliSeconds}</p>:<p style={{color: "red"}}>{miliSeconds}</p>)}
+          </div>
+          <div className="item">
           <p>{ lastTime.min0 + lastTime.mm + "." + lastTime.sec0 + lastTime.ss}</p>
           </div>
           {/* <div className="item">
@@ -465,7 +466,7 @@ export default function Game() {
           <div className="title">Input: </div>
 
           <div className="item">
-            <div style={{  display: "flex", flexDirection: "column", alignItems: "center", gap: "1px", paddingY: "1vh", marginY: "1vh"}}>
+            <div>
             {/* <div>
               <p>stroke</p>
             </div> */}
