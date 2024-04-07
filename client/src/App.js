@@ -296,6 +296,10 @@ export default function Game() {
     return true;
   }
 
+  // Event listener:
+  // 1) check if connected to socket
+  // 2) connect to Socket
+  // 3) Send "value" received from socket to processData function
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
@@ -306,8 +310,6 @@ export default function Game() {
     function onData(value) {
       // console.log(typeof(value))
       processData(value);
-      // soundTrack(a,b,c)
-      // setAge(a => a + 1);
     }
     socket.on("serialData", onData);
     socket.on("connection", onConnect);
@@ -319,8 +321,8 @@ export default function Game() {
       socket.off("disconnect", onDisconnect);
     };
   }, []);
-
-  const testing = new Sprite({
+  // image for the old version that printed a green dot image instead of line
+  const imaging = new Sprite({
     image: test,
     x: positionX,
     y: positionY,
@@ -356,11 +358,12 @@ export default function Game() {
       return "";
     }
   }
+
   // draw canvas and move object.
   useEffect(() => {
     // screening.draw()
     lining.draw()
-    // testing.draw();
+    // imaging.draw();
     // for(let i = 0; i<50;i++){
       setClearState(-1000)
       setPositionX(positionX+1)
