@@ -65,12 +65,12 @@ export default function Game() {
   // set hour and time with seconds to time function
   useEffect(() => {
     setTimeout(() => {
-      setSeconds((seconds) => seconds + 1);
-      if (seconds === 59) {
-        setSeconds(0)
-        setPushes(0)
-      }
+        setSeconds((seconds) => seconds + 1);
+        if (seconds == 59) {
+          setSeconds(0)
+        }
     }, 1000);
+
     let clock = secondsToTime(seconds);
     let sec0 = addZero(clock.s);
     let min0 = addZero(clock.m);
@@ -79,12 +79,13 @@ export default function Game() {
     setTime({ min0, mm, sec0, ss });
   }, [seconds]);
 
+
   useEffect(()=>{
     setTimeout(() => {
       setHalfSeconds((halfSeconds) => halfSeconds + 1);
-      if (seconds === 59) {
-        setHalfSeconds(0)
-      }
+      // if (seconds === 59) {
+      //   setHalfSeconds(0)
+      // }
     }, 400);
   }, [halfSeconds])
 
@@ -293,6 +294,9 @@ export default function Game() {
     if (!onShake) {
       setOnShake(true);
       setPushes(pushes + 1)
+      if (seconds == 59) {
+        setPushes(0)
+      }
       setTimeout(() => {
         // console.log("Delayed for 0.5 second.");
         setOnShake(false);
@@ -307,7 +311,6 @@ export default function Game() {
 
     } else if (!stroke) {
       setStroke(true);
-
     }
   };
 
